@@ -34,7 +34,7 @@ func (p *PrismCentral) Version(ctx context.Context) (model.ProductVersion, error
 	}
 	path := p.client.nsPath(ctx, "prism", "config/domain-managers")
 	if err := p.client.getJSON(ctx, path, nil, &envelope); err != nil {
-		return model.ProductVersion{}, translate(err)
+		return model.ProductVersion{}, translateCollection(err)
 	}
 	for _, dm := range envelope.Data {
 		if dm.Config != nil && dm.Config.BuildInfo != nil && dm.Config.BuildInfo.Version != "" {
@@ -61,7 +61,7 @@ func listClusters(ctx context.Context, c *Client) ([]model.Cluster, error) {
 		}
 		return len(page), nil
 	})
-	return out, translate(err)
+	return out, translateCollection(err)
 }
 
 func (p *PrismCentral) ListNetworkControllers(ctx context.Context) ([]model.NetworkController, error) {
@@ -70,7 +70,7 @@ func (p *PrismCentral) ListNetworkControllers(ctx context.Context) ([]model.Netw
 	}
 	path := p.client.nsPath(ctx, "networking", "config/controllers")
 	if err := p.client.getJSON(ctx, path, nil, &envelope); err != nil {
-		return nil, translate(err)
+		return nil, translateCollection(err)
 	}
 	out := make([]model.NetworkController, 0, len(envelope.Data))
 	for _, item := range envelope.Data {
@@ -92,7 +92,7 @@ func (p *PrismCentral) ListSubnets(ctx context.Context) ([]model.Subnet, error) 
 		}
 		return len(page), nil
 	})
-	return out, translate(err)
+	return out, translateCollection(err)
 }
 
 func (p *PrismCentral) GetSubnet(ctx context.Context, extID string) (model.Subnet, error) {
@@ -123,7 +123,7 @@ func (p *PrismCentral) ListVnicsBySubnet(ctx context.Context, subnetExtID string
 		}
 		return len(page), nil
 	})
-	return out, translate(err)
+	return out, translateCollection(err)
 }
 
 func (p *PrismCentral) ListVMs(ctx context.Context) ([]model.VM, error) {
@@ -139,7 +139,7 @@ func (p *PrismCentral) ListVMs(ctx context.Context) ([]model.VM, error) {
 		}
 		return len(page), nil
 	})
-	return out, translate(err)
+	return out, translateCollection(err)
 }
 
 func (p *PrismCentral) ListFileServers(ctx context.Context) ([]model.FileServer, error) {
@@ -155,7 +155,7 @@ func (p *PrismCentral) ListFileServers(ctx context.Context) ([]model.FileServer,
 		}
 		return len(page), nil
 	})
-	return out, translate(err)
+	return out, translateCollection(err)
 }
 
 func (p *PrismCentral) GetProtectionInfo(ctx context.Context, entityExtID string) (model.ProtectionInfo, error) {

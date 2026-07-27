@@ -183,6 +183,7 @@ func Gather(ctx context.Context, pc service.PrismCentral, pe service.PrismElemen
 	for _, vm := range vms {
 		clusterName := inv.ClusterNames[vm.ClusterExtID]
 		for _, nic := range vm.Nics {
+			nic.VMExtID = vm.ExtID
 			nic.VMName = vm.Name
 			nic.ClusterExtID = vm.ClusterExtID
 			if nic.SubnetExtID != "" {

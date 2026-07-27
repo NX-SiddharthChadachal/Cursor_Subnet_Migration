@@ -2,7 +2,6 @@ package preflight
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"github.com/NX-SiddharthChadachal/Cursor_Subnet_Migration/internal/config"
@@ -200,11 +199,14 @@ func build(backend service.Backend, cfg *config.Config, legacy *rest.PrismElemen
 		pc service.PrismCentral
 		pe service.PrismElement
 	)
+	// The SDK clients log every request; that is only wanted at debug level.
+	quiet := cfg.LogLevel > logging.LevelDebug
+
 	switch backend {
 	case service.BackendGoSDK:
-		pc = sdk.NewPrismCentral(cfg.PrismCentral)
+		pc = sdk.NewPrismCentral(cfg.PrismCentral, quiet)
 		if cfg.PrismElement != nil {
-			pe = composite.NewPrismElement(sdk.NewPrismElement(*cfg.PrismElement), legacy)
+			pe = composite.NewPrismElement(sdk.NewPrismElement(*cfg.PrismElement, quiet), legacy)
 		}
 	default:
 		pc = rest.NewPrismCentral(cfg.PrismCentral)
@@ -214,7 +216,3 @@ func build(backend service.Backend, cfg *config.Config, legacy *rest.PrismElemen
 	}
 	return pc, pe
 }
-
-// ErrUnreachable is returned when an endpoint fails the TCP probe. Callers use
-// it to distinguish a networking problem from an authentication problem.
-var ErrUnreachable = errors.New("endpoint unreachable")

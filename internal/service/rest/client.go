@@ -244,14 +244,30 @@ func (c *Client) listPaged(ctx context.Context, path string, extra url.Values, d
 	return fmt.Errorf("aborting pagination of %s after %d pages", path, maxPages)
 }
 
-// translate maps transport errors onto the sentinel errors the components
-// understand.
+// translate maps an entity lookup error onto the sentinel errors the components
+// understand. A 404 here means the entity does not exist, which is a meaningful
+// answer: an unprotected VM has no protected-resource record.
 func translate(err error) error {
 	switch {
 	case err == nil:
 		return nil
 	case IsNotFound(err):
 		return fmt.Errorf("%w: %s", service.ErrNotFound, err)
+	case IsUnsupported(err):
+		return fmt.Errorf("%w: %s", service.ErrUnsupported, err)
+	default:
+		return err
+	}
+}
+
+// translateCollection maps a collection listing error. A 404 on a collection
+// means the endpoint does not serve that API at all — Files is not deployed, or
+// the cluster predates the namespace — so it becomes ErrUnsupported and the
+// caller records the check as incomplete rather than as empty.
+func translateCollection(err error) error {
+	switch {
+	case err == nil:
+		return nil
 	case IsUnsupported(err):
 		return fmt.Errorf("%w: %s", service.ErrUnsupported, err)
 	default:

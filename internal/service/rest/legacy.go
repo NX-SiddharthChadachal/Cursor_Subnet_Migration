@@ -2,7 +2,6 @@ package rest
 
 import (
 	"context"
-	"fmt"
 	"strings"
 
 	"github.com/NX-SiddharthChadachal/Cursor_Subnet_Migration/internal/model"
@@ -40,7 +39,7 @@ type legacyProtectionDomainEnvelope struct {
 func listProtectionDomains(ctx context.Context, c *Client) ([]model.ProtectionDomain, error) {
 	var envelope legacyProtectionDomainEnvelope
 	if err := c.getJSON(ctx, legacyProtectionDomainsPath, nil, &envelope); err != nil {
-		return nil, translate(err)
+		return nil, translateCollection(err)
 	}
 	out := make([]model.ProtectionDomain, 0, len(envelope.Entities))
 	for _, e := range envelope.Entities {
@@ -78,7 +77,7 @@ type legacyVFilerEnvelope struct {
 func listFileServerNetworks(ctx context.Context, c *Client) ([]model.FileServerNetwork, error) {
 	var envelope legacyVFilerEnvelope
 	if err := c.getJSON(ctx, legacyVFilersPath, nil, &envelope); err != nil {
-		return nil, translate(err)
+		return nil, translateCollection(err)
 	}
 	out := make([]model.FileServerNetwork, 0, len(envelope.Entities))
 	for _, e := range envelope.Entities {
@@ -114,10 +113,4 @@ func normalizeLegacyEntityID(id string) string {
 		id = id[idx+2:]
 	}
 	return id
-}
-
-// describeLegacyFailure wraps a legacy inventory error with the context an
-// operator needs to decide whether to care.
-func describeLegacyFailure(name string, err error) error {
-	return fmt.Errorf("%s inventory unavailable: %w", name, err)
 }

@@ -41,16 +41,16 @@ func (e Endpoint) BaseURL() string {
 // ProductVersion is the version of a Prism Central or AOS build.
 type ProductVersion struct {
 	// Product is a human readable name such as "Prism Central" or "AOS".
-	Product string
+	Product string `json:"product,omitempty"`
 	// Raw is the version string exactly as reported by the API, for example
 	// "pc.7.5" or "7.5".
-	Raw string
+	Raw string `json:"raw,omitempty"`
 	// Major and Minor are parsed from Raw; they are zero when Raw could not be
 	// interpreted.
-	Major int
-	Minor int
+	Major int `json:"major,omitempty"`
+	Minor int `json:"minor,omitempty"`
 	// Source names the API that produced the value, useful in the audit log.
-	Source string
+	Source string `json:"source,omitempty"`
 }
 
 func (v ProductVersion) String() string {
@@ -62,12 +62,12 @@ func (v ProductVersion) String() string {
 
 // Cluster is a registered Prism Element cluster as seen from Prism Central.
 type Cluster struct {
-	ExtID           string
-	Name            string
-	AOSVersion      string
-	HypervisorTypes []string
-	Functions       []string
-	IsAvailable     bool
+	ExtID           string   `json:"extId"`
+	Name            string   `json:"name,omitempty"`
+	AOSVersion      string   `json:"aosVersion,omitempty"`
+	HypervisorTypes []string `json:"hypervisorTypes,omitempty"`
+	Functions       []string `json:"functions,omitempty"`
+	IsAvailable     bool     `json:"isAvailable"`
 }
 
 // SubnetType mirrors the networking v4 subnet type discriminator.
@@ -92,19 +92,19 @@ const (
 
 // Subnet is a Prism Central subnet (a VLAN in the vocabulary of this tool).
 type Subnet struct {
-	ExtID                string
-	Name                 string
-	Type                 SubnetType
-	VLANID               int
-	IsAdvancedNetworking bool
-	IsExternal           bool
-	MigrationState       MigrationState
-	ClusterExtIDs        []string
-	ClusterNames         []string
-	VirtualSwitchExtID   string
-	BridgeName           string
-	HypervisorType       string
-	IPPrefix             string
+	ExtID                string         `json:"extId"`
+	Name                 string         `json:"name,omitempty"`
+	Type                 SubnetType     `json:"type,omitempty"`
+	VLANID               int            `json:"vlanId"`
+	IsAdvancedNetworking bool           `json:"isAdvancedNetworking"`
+	IsExternal           bool           `json:"isExternal,omitempty"`
+	MigrationState       MigrationState `json:"migrationState,omitempty"`
+	ClusterExtIDs        []string       `json:"clusterExtIds,omitempty"`
+	ClusterNames         []string       `json:"clusterNames,omitempty"`
+	VirtualSwitchExtID   string         `json:"virtualSwitchExtId,omitempty"`
+	BridgeName           string         `json:"bridgeName,omitempty"`
+	HypervisorType       string         `json:"hypervisorType,omitempty"`
+	IPPrefix             string         `json:"ipPrefix,omitempty"`
 }
 
 // IsBasicVLAN reports whether the subnet is a VLAN subnet still served by the
@@ -173,12 +173,12 @@ type VM struct {
 // NetworkController is the Flow Virtual Networking (Atlas) controller that owns
 // advanced networking on a Prism Central.
 type NetworkController struct {
-	ExtID            string
-	Version          string
-	Status           string
-	DefaultVlanStack string
-	MinimumAOS       string
-	MinimumAHV       string
+	ExtID            string `json:"extId"`
+	Version          string `json:"version,omitempty"`
+	Status           string `json:"status,omitempty"`
+	DefaultVlanStack string `json:"defaultVlanStack,omitempty"`
+	MinimumAOS       string `json:"minimumAosVersion,omitempty"`
+	MinimumAHV       string `json:"minimumAhvVersion,omitempty"`
 }
 
 // IsUsable reports whether the controller is in a state that can accept a

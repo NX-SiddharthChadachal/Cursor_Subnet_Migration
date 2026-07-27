@@ -7,6 +7,7 @@
 package sdk
 
 import (
+	"os"
 	"time"
 
 	clustermgmtapi "github.com/nutanix/ntnx-api-golang-clients/clustermgmt-go-client/v4/api"
@@ -45,7 +46,17 @@ type clientSet struct {
 	fileServers        *filesapi.FileServersApi
 }
 
-func newClientSet(ep model.Endpoint) *clientSet {
+func newClientSet(ep model.Endpoint, quiet bool) *clientSet {
+	if quiet {
+		// Each generated client builds its own logrus logger that writes request
+		// lines to os.Stderr, and captures the writer at construction time with
+		// no exported way to change it afterwards. Pointing os.Stderr at the
+		// null device for the duration of construction leaves those loggers
+		// writing nowhere, so the run log stays the only thing on stderr.
+		// Construction happens once, before any goroutine starts.
+		defer silenceStderr()()
+	}
+
 	net := networkingclient.NewApiClient()
 	applyNetworking(net, ep)
 
@@ -75,6 +86,25 @@ func newClientSet(ep model.Endpoint) *clientSet {
 		protectedResources: dataprotectionapi.NewProtectedResourcesApi(dp),
 		fileServers:        filesapi.NewFileServersApi(fs),
 	}
+}
+
+// devNull stays open for the lifetime of the process because the SDK loggers
+// keep writing to whatever writer they captured.
+var devNull *os.File
+
+// silenceStderr redirects os.Stderr to the null device and returns a function
+// that restores it.
+func silenceStderr() func() {
+	if devNull == nil {
+		f, err := os.OpenFile(os.DevNull, os.O_WRONLY, 0)
+		if err != nil {
+			return func() {}
+		}
+		devNull = f
+	}
+	original := os.Stderr
+	os.Stderr = devNull
+	return func() { os.Stderr = original }
 }
 
 // The generated ApiClient types are structurally identical but nominally
